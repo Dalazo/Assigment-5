@@ -1,5 +1,5 @@
-// Name
-// Section #
+// Daniel Lazo
+// Section tuesday - thurs 2:30pm - 5:20pm
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -22,14 +22,21 @@ void printMenu() {
 }
 
 
-Book * searchBook(vector<Book *> mybooks, int ID);
+Book * searchBook(vector<Book *> mybooks);
 Person * IDcheck(vector<Person*> card, int ID);
+
+void saverecords(vector<Book*> &mybooks, vector<Person*> &myvect);
 void readPersons(vector<Person*> &myvect, string name);
 void readBooks(vector<Book*> &myvect, string name);
+
+void CancelMem(vector<Person*> &myvect);
 void OutstandingBooks(vector<Book*> &myvect);
 void newPerson(vector<Person*> &myvect);
-int askID();
 void unrentedBooks(vector<Book*> &myvect);
+void ActiveMembers(vector<Person*> &myvect);
+
+int askID(vector<Person*> &myvect);
+
 int main()
 {
     vector<Book *> books;
@@ -44,6 +51,7 @@ int main()
 Person * Personptr = nullptr;
 Book * Bookptr = nullptr;
 string name;
+bool check;
 int id;    
     int choice;
     do
@@ -52,23 +60,21 @@ int id;
         // the user pressed when entering a menu option. This is still in the input stream.
         printMenu();
         cin >> choice;
+       
         switch(choice)
         {
             case 1:
                 
                  
-                Personptr = IDcheck(cardholders,askID());
+                Personptr = IDcheck(cardholders,askID(cardholders));
                 if (Personptr == nullptr)
                 {
-
-                    cout << "Person not found" << endl;
                 break;
                 }
-                Bookptr = searchBook(books,askID());
+                
+                Bookptr = searchBook(books);
                 if (Bookptr == nullptr)
                 {
-
-                    cout << "Book not found" << endl;
                 break;
                 }
                 
@@ -76,32 +82,34 @@ int id;
                 cout << "Rental Completed" << endl;
                 
                 break;
-
-
             case 2:
-              Bookptr =  searchBook(books,askID());
-                
+              Bookptr =  searchBook(books);
+                if (Bookptr == nullptr)
+                {
+                break;
+                }
+
               Bookptr->setPersonPtr(nullptr);
               cout << "Rental returned" << endl;
                 break;
 
             case 3:
-                
-                unrentedBooks(books);
+                 unrentedBooks(books);
                 break;
 
             case 4:
                 OutstandingBooks(books);
 
+                
+
                 break;
 
             case 5:
-
-                Personptr = IDcheck(cardholders,askID());
+                
+                check = false;
+                Personptr = IDcheck(cardholders,askID(cardholders));
                 if (Personptr == nullptr)
                 {
-
-                    cout << "Person not found" << endl;
                 break;
                 }
                 for (int i = 0; i<books.size();i++)
@@ -109,28 +117,39 @@ int id;
 
                     if (Personptr == books.at(i)->getPersonPtr())
                   {
+                    cout << " " << endl;
                     cout << books.at(i)->getId() << endl;
                     cout << books.at(i)->getTitle() << endl;
                     cout << books.at(i)->getAuthor() << endl;
-                
+                    check = true;
+                    break;
                   }
-                  
+                                    
                     
                 }
-                
-
-                break;
+                if (check == false)
+                    {
+                        cout << "No books rented.." << endl;
+                    break;
+                    }
+                else
+                {
+                   break; 
+                }
+                    
+               
 
             case 6:
-                newPerson(cardholders);
+            ActiveMembers(cardholders);
                 break;
 
             case 7:
-                // Close library card
+            CancelMem(cardholders);
                 break;
                 
             case 8:
-  
+            cout << "Saving records " << endl;
+            saverecords(books,cardholders);
                 break;
 
             default:
@@ -139,7 +158,9 @@ int id;
         }
         cout << endl;
    } while(choice != 8);
+     
      cout << "Clearing.." << endl;
+     
      for (int i=0; i <cardholders.size(); i ++)
     {  
     delete cardholders.at(i);
@@ -184,10 +205,10 @@ fstream myfile;
     string lastName;
    
    
-   while (!myfile.eof())
+   while (myfile >> cardID)
 
 {   
-    myfile >> cardID;
+   
     myfile >> active;
     myfile >> firstName;
     myfile >> lastName;
@@ -256,6 +277,7 @@ for (int i = 0; i < card.size(); i++)
 
 if (card.at(i)->getId() == ID)
 {
+cout << " " << endl;
 cout << "Record found" << endl;
 cout << "Customer Name:" << card.at(i)->fullName()<< endl;
 
@@ -265,31 +287,48 @@ return ptr;
 
 }
 }
-
+cout << "Not a valid person" << endl;
 return nullptr;
 
-
 }
 
-int askID()
-{
 
+int askID(vector<Person*> &myvect)
+{
+bool invalid;
 int id;
-cout << "Please enter ID: " << endl;
-                cin.ignore();
-                
-                
-                cin>> id;
+while ( invalid = true)
+{
+    cout << " " << endl;
+    cout << "Please enter user ID: " << endl;
+    cin.ignore();
+    cin>> id;
 
 
-return id;
-
+    for ( int i = 0; i < myvect.size() ; i++)
+    {
+        if (myvect.at(i)->getId() == id)
+    {
+    return id;
+    }
+    
+    invalid = true;
 }
 
+    if (invalid = true)
+    {
 
-Book * searchBook(vector<Book *> mybooks, int ID)
+    cout << "Error: ID is not valid" << endl;
+    }
+}
+}
+
+Book * searchBook(vector<Book *> mybooks)
 {
-
+int ID;
+cout << " " << endl;
+cout << "Please enter Book ID: " ;
+cin >> ID;
 
 
 for (int i = 0; i < mybooks.size(); i++)
@@ -297,6 +336,7 @@ for (int i = 0; i < mybooks.size(); i++)
 
 if (mybooks.at(i)->getId() == ID)
 {
+cout << "   " << endl;
 cout << "Book found" << endl;
 cout << "Book title:" << mybooks.at(i)->getTitle() << endl;
 cout << " " << endl;
@@ -306,6 +346,7 @@ return ptr;
 
 
 }
+cout << "Book not found " << endl;
 
 return nullptr;
 
@@ -333,6 +374,7 @@ cout << myvect.at(i)->getTitle() << endl;
 cout << myvect.at(i)->getAuthor() << endl;
 
 ptr = myvect.at(i)->getPersonPtr();
+cout << " " << endl;
 cout << "Cardholder :" << ptr->fullName() << endl;
 cout << "Card ID: " << ptr->getId() << endl;
 }
@@ -361,25 +403,153 @@ cout << myvect.at(i)->getAuthor() << endl;
 }
 
 
-void newPerson(vector<Person*> &myvect)
+
+void ActiveMembers(vector<Person*> &myvect)
 {
+
 string name;
 string last;
 int id;
-bool active;
+bool active = true;
+cout << " " << endl;
 cout << "Please enter name" << endl;
 cin >> name;
 cout << "Please last name" << endl;
 cin >> last;
 
-id = 1 + myvect.back()->getId();
-active = true;
-myvect.push_back(new Person(id,active,name,last));
+for (int i =0;i<myvect.size();i++)
+{
 
-cout << "ID created " << name + " " + last << endl;
-cout << active << endl;
-cout << "ID number " << id;
+  
+  if (myvect.at(i)->getFirstName() == name )
+    {
+   
+        if (myvect.at(i)->isActive() == false)
+        {
+        myvect.at(i)->setActive(true);
+        cout << " " << endl;
+        cout << "Name found. Activating membership..." << endl;
+       active = true;
+        break;
+        }
+        if (myvect.at(i)->isActive() == true)
+        {
+        cout << " " << endl;
+        cout << "Already a member..." << endl;
+      active = true;
+        }
+      break;
 
+    }
+  if (myvect.at(i)->getFirstName() != name )
+    {
+        active = false;
+    
+    }
+}
+
+  if (active == false)
+  {
+         id = 1 + myvect.back()->getId();
+        active = true;
+        myvect.push_back(new Person(id,active,name,last));
+        cout << " " << endl;
+        cout << "ID created " << name + " " + last << endl;
+
+        cout << "ID number " << id;
+  }
+
+}
+
+
+void CancelMem(vector<Person*> &myvect)
+{
+int id;
+bool found;
+char answer;
+id = askID(myvect);
+
+
+for (int i = 0; i < myvect.size();i++)
+{
+
+    if (id == myvect.at(i)->getId())
+    {
+    cout << " " << endl;
+    cout << "Are you sure you want to deactivate (Y\\N)" << endl;
+   cin >> answer;
+  answer = toupper(answer);
+        if (answer == 'Y')
+        {
+         cout << "Deactivating...." << endl;
+        myvect.at(i)->setActive(false);
+        }
+        if (answer == 'N')
+        {
+
+            cout << "Not deactivating " << endl;
+            
+        }
+    found = true;
+    break;
+
+    }
+  else
+  {
+      found = false;
+  }
+  
+
+}
+
+}
+
+
+
+void saverecords(vector<Book*> &mybook, vector<Person*> &myvect)
+{
+
+fstream myfile;
+fstream myfile2;
+
+myfile.open("rentals.txt");
+
+if (!myfile.is_open())
+{
+    cout << "File is not open" << endl;
+}
+ 
+
+
+for (int i = 0; i < mybook.size();i++)
+{
+
+if (mybook.at(i)->getPersonPtr() != nullptr)
+{
+myfile << mybook.at(i)->getId() << " ";
+myfile << mybook.at(i)->getPersonPtr()->getId();
+}
+}
+
+myfile.close();
+
+myfile2.open("persons.txt");
+if (!myfile2.is_open())
+{
+    cout << "File is not open" << endl;
+}
+
+for (int i = 0; i <myvect.size();i++)
+{
+
+myfile2 << myvect.at(i)->getId() << " " << myvect.at(i)->isActive() << " " << myvect.at(i)->fullName() << endl;
+
+
+}
+
+
+
+myfile2.close();
 
 
 }
