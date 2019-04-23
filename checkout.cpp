@@ -346,14 +346,15 @@ return ptr;
 
 
 }
-cout << "Book not found " << endl;
-
-return nullptr;
 
 
 
 
 }
+cout << "Book not found " << endl;
+
+return nullptr;
+
 }
 
 
